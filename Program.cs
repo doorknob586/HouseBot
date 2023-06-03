@@ -18,6 +18,9 @@ using Discord.Utils;
 using Discord.Webhook;
 using Discord.WebSocket;
 using DotNetEnv;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 
 
 namespace HouseBot;
@@ -39,6 +42,46 @@ static class Program
     }
     static Task SubscribeToEvents()
     {
+        client.Ready += BotReady;
+        client.MessageReceived += MessageReceived;
         return Task.CompletedTask;
+    }
+
+    static async Task MessageReceived(SocketMessage message)
+    {
+        if (message.Author.IsBot || message.Author.IsWebhook) return;
+
+    }
+    static async Task<string> GetResponceAsync(string message)
+    {
+        string apiKey = Environment.GetEnvironmentVariable("APIKEY");
+        const string apiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
+
+        RestClient restClient = new RestClient(apiUrl);
+        restClient.AddDefaultHeader("Authorization", $"Bearer {apiKey}");
+        RestSharp.RestRequest request = new RestSharp.RestRequest();
+        request.AddJsonBody(new
+        {
+            prompt = $">>User:{message}",
+            max_tokens = 50,
+            n = 1,
+            stop = "\n",
+            temperature = 0.5,
+        });
+        request.Method = Method.Post;
+        var response = await restClient.ExecuteAsync(request);
+        if (response.IsSuccessful)
+        {
+            JObject responseData = JObject.Parse(response.Content);
+            string chatGptResponse = responseData["choices"][0]["text"].ToString().Trim();
+            return chatGptResponse;
+        }
+        else
+        {
+            return "An error occureds";
+        }
+    }
+    static async Task BotReady()
+    {
     }
 }
