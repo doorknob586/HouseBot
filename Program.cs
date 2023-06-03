@@ -38,18 +38,27 @@ static class Program
         Env.Load();
         await SubscribeToEvents();
         await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
+        await client.StartAsync();
         await Task.Delay(-1);
     }
     static Task SubscribeToEvents()
     {
         client.Ready += BotReady;
         client.MessageReceived += MessageReceived;
+        client.Log += Log;
+        return Task.CompletedTask;
+    }
+
+    static Task Log(LogMessage message)
+    {
+        Console.WriteLine(message.ToString());
         return Task.CompletedTask;
     }
 
     static async Task MessageReceived(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook) return;
+        await message.Channel.SendMessageAsync(await GetResponceAsync(message.Content));
 
     }
     static async Task<string> GetResponceAsync(string message)

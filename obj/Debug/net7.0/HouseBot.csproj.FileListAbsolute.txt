@@ -25,3 +25,9 @@ C:\Users\Dell\Desktop\HouseBot\obj\Debug\net7.0\refint\HouseBot.dll
 C:\Users\Dell\Desktop\HouseBot\obj\Debug\net7.0\HouseBot.pdb
 C:\Users\Dell\Desktop\HouseBot\obj\Debug\net7.0\HouseBot.genruntimeconfig.cache
 C:\Users\Dell\Desktop\HouseBot\obj\Debug\net7.0\ref\HouseBot.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\DotNetEnv.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\RestSharp.dll
+C:\Users\Dell\Desktop\HouseBot\bin\Debug\net7.0\Sprache.dll
