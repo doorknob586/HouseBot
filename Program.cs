@@ -64,7 +64,7 @@ static class Program
     static async Task<string> GetResponceAsync(string message)
     {
         string apiKey = Environment.GetEnvironmentVariable("APIKEY");
-        const string apiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
+        const string apiUrl =  "https://api.openai.com/v1/engines/gpt-3.5-turbo/completions";
 
         RestClient restClient = new RestClient(apiUrl);
         restClient.AddDefaultHeader("Authorization", $"Bearer {apiKey}");
@@ -87,7 +87,7 @@ static class Program
         }
         else
         {
-            return "An error occureds";
+            return $"Error fetching response from OpenAI API. Status Code: {response.StatusCode}, Content: {response.Content}";
         }
     }
     static async Task BotReady()
