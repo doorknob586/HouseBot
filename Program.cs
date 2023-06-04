@@ -79,24 +79,25 @@ static class Program
         if (message.Author.IsBot || message.Author.IsWebhook) return;
         if (new Random().Next(0,100) == 50)
         {
-            message.Channel.SendMessageAsync(responses[new Random().Next(0,responses.Length)]);
+            await message.Channel.SendMessageAsync(responses[new Random().Next(0,responses.Length)]);
         }
 
     }
     static string[] responses = {"yes", "no", "maybe","chicken","not no", "not yes","idk","how am i supposed to know"};
-    static async Task BotReady()
+    static Task BotReady()
     {
-        new Thread(() => 
+        new Thread(async () => 
         {
             Thread.Sleep(new Random().Next(50,10000000));
             foreach(SocketGuild guild in client.Guilds)
             {
                 foreach(SocketTextChannel channel in guild.Channels)
                 {
-                    channel.SendMessageAsync(responses[new Random().Next(0, responses.Length)]);
+                    await channel.SendMessageAsync(responses[new Random().Next(0, responses.Length)]);
                 }
             }
 
         }).Start();
+        return Task.CompletedTask;
     }
 }
