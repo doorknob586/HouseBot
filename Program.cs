@@ -20,13 +20,31 @@ using Discord.WebSocket;
 using DotNetEnv;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
-using RestSharp;
+using System.Net;
 
 
 namespace HouseBot;
 
 static class Program
 {
+    static void StartWebServer()
+    {
+        HttpListener listener = new HttpListener();
+        listener.Prefixes.Add("http://*:8000/");
+        listener.Start();
+        Console.WriteLine("Web server running on port 8000");
+
+        while (true)
+        {
+            HttpListenerContext context = listener.GetContext();
+            HttpListenerResponse response = context.Response;
+
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes("Your bot is running");
+            response.ContentLength64 = buffer.Length;
+            response.OutputStream.Write(buffer, 0, buffer.Length);
+            response.Close();
+        }  
+    }
     static DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig()
     {
         GatewayIntents = GatewayIntents.All
@@ -35,6 +53,7 @@ static class Program
 
     static async Task MainAsync()
     {
+        StartWebServer();
         Env.Load();
         await SubscribeToEvents();
         await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
@@ -58,39 +77,26 @@ static class Program
     static async Task MessageReceived(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook) return;
-        await message.Channel.SendMessageAsync(await GetResponceAsync(message.Content));
+        if (new Random().Next(0,100) == 50)
+        {
+            message.Channel.SendMessageAsync(responses[new Random().Next(0,responses.Length)]);
+        }
 
     }
-    static async Task<string> GetResponceAsync(string message)
-    {
-        string apiKey = Environment.GetEnvironmentVariable("APIKEY");
-        const string apiUrl =  "https://api.openai.com/v1/engines/gpt-3.5-turbo/completions";
-
-        RestClient restClient = new RestClient(apiUrl);
-        restClient.AddDefaultHeader("Authorization", $"Bearer {apiKey}");
-        RestSharp.RestRequest request = new RestSharp.RestRequest();
-        request.AddJsonBody(new
-        {
-            prompt = $">>User:{message}",
-            max_tokens = 50,
-            n = 1,
-            stop = "\n",
-            temperature = 0.5,
-        });
-        request.Method = Method.Post;
-        var response = await restClient.ExecuteAsync(request);
-        if (response.IsSuccessful)
-        {
-            JObject responseData = JObject.Parse(response.Content);
-            string chatGptResponse = responseData["choices"][0]["text"].ToString().Trim();
-            return chatGptResponse;
-        }
-        else
-        {
-            return $"Error fetching response from OpenAI API. Status Code: {response.StatusCode}, Content: {response.Content}";
-        }
-    }
+    static string[] responses = {"yes", "no", "maybe","chicken","not no", "not yes","idk","how am i supposed to know"};
     static async Task BotReady()
     {
+        new Thread(() => 
+        {
+            Thread.Sleep(new Random().Next(50,10000000));
+            foreach(SocketGuild guild in client.Guilds)
+            {
+                foreach(SocketTextChannel channel in guild.Channels)
+                {
+                    channel.SendMessageAsync(responses[new Random().Next(0, responses.Length)]);
+                }
+            }
+
+        }).Start();
     }
 }
